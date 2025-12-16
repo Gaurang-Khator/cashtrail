@@ -19,6 +19,7 @@ provider:
             - dynamodb:DeleteItem
             - dynamodb:UpdateItem
             - dynamodb:Scan
+            - dynamodb:Query
           Resource: "*"
 
 functions:
@@ -28,6 +29,13 @@ functions:
       - httpApi:
           path: /expenses
           method: post
+
+  getExpense:
+    handler: handlers/getExpense.getExpense
+    events:
+      - httpApi:
+          path: /expenses
+          method: get
 
 
 resources:

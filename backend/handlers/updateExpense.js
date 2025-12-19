@@ -27,7 +27,7 @@ exports.updateExpense = async(event) => {
 
         if(category) {
             updateExpressions.push("#category = :category");
-            expressionAtrributeValues[":category"] = category;
+            expressionAttributeValues[":category"] = category;
             expressionAttributeNames["#category"] = "category";
         }
         if(date) {

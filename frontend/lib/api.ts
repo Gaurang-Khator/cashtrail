@@ -23,7 +23,7 @@ export async function getExpenses(userId: string): Promise<Expense[]> {
         throw new Error("Failed to fetch expenses");
     }
 
-    const data  = await res.json();
+    const data = await res.json();
     return data.expenses;
 }
 
@@ -47,3 +47,36 @@ export async function addExpense(expense: {
     }
     return res.json();
 }
+
+export async function deleteExpense(userId: string, expenseId: string){
+    const res = await fetch(`${API_BASE_URL}/expenses/${expenseId}?userId=${userId}`, {
+        method: 'DELETE'
+    })
+
+    if(!res.ok) {
+        throw new Error("Failed to delete expense!");
+    }
+
+    return res.json()
+}
+
+export async function updateExpense(expenseId: string, payload:{
+    userId: string,
+    amount?: number,
+    category?: string,
+    date?: string,
+    note?: string,
+}) {
+    const res = await fetch(`${API_BASE_URL}/expenses/${expenseId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json"},
+        body: JSON.stringify(payload),
+    })
+
+    if(!res.ok) {
+        throw new Error("Failed to update expense");
+    }
+
+    return res.json();
+}
+

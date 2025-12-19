@@ -33,6 +33,7 @@ provider:
         - POST 
         - OPTIONS
         - PUT 
+        - DELETE
 
 functions:
   createExpense:

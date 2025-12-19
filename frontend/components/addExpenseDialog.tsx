@@ -8,14 +8,23 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Textarea } from "./ui/textarea";
 
+import { useUser } from "@clerk/nextjs";
+
 export function AddExpenseDialog() {
+    const { user } = useUser();
     const [loading, setLoading] = useState(false);
 
     async function handleSubmit(formData: FormData) {
+        if (!user) {
+            alert("You must be logged in to add an expense");
+            return;
+        }
+        
         setLoading(true);
 
         const expense = { 
-            userId: "user123",  //temporary hardcoded userId
+            // userId: "user123",  //temporary hardcoded userId
+            userId: user.id,
             amount: Number(formData.get('amount')),
             category: String(formData.get('category')),
             date: String(formData.get('date')),

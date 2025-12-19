@@ -7,67 +7,84 @@ import { ExpenseTable } from "@/components/expenseTable";
 import { AddExpenseDialog } from "@/components/addExpenseDialog";
 import { EditExpenseDialog } from "@/components/editExpenseDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
+import { useUser, UserButton } from "@clerk/nextjs";
 
 export default function Home() {
-  const userId = "user123" // temporary
+  const { user, isLoaded } = useUser();
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState<Expense | null>(null);
 
-  const [expenses, setExpenses] = useState<Expense[]>([])
-  const [loading, setLoading] = useState(true)
-  const [editing, setEditing] = useState<Expense | null>(null)
 
   useEffect(() => {
+   
+    if (!isLoaded || !user?.id) return;
+
     async function loadExpenses() {
-      const data = await getExpenses(userId)
-      // optional sorting
-      data.sort(
-        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-      )
-      setExpenses(data)
-      setLoading(false)
+      try {
+        const data = await getExpenses(user!.id);
+        // Sort by date descending
+        data.sort(
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+        );
+        setExpenses(data);
+      } catch (error) {
+        console.error("Failed to load expenses", error);
+      } finally {
+        setLoading(false);
+      }
     }
 
-    loadExpenses()
-  }, [])
+    loadExpenses();
+  }, [isLoaded, user?.id]);
 
   async function handleDelete(expenseId: string) {
-    // optimistic update
-    setExpenses((prev) =>
-      prev.filter((e) => e.expenseId !== expenseId)
-    )
+    if (!user) return;
+    
+    setExpenses((prev) => prev.filter((e) => e.expenseId !== expenseId));
 
     try {
-      await deleteExpense(userId, expenseId)
+      await deleteExpense(user.id, expenseId);
     } catch (error) {
-      alert("Failed to delete expense")
-      // rollback if needed
-      const data = await getExpenses(userId)
-      setExpenses(data)
+      alert("Failed to delete expense");
+  
+      const data = await getExpenses(user.id);
+      setExpenses(data);
     }
   }
 
   function handleEdit(expense: Expense) {
-    setEditing(expense)
+    setEditing(expense);
   }
 
   function handleUpdated(updated: Expense) {
     setExpenses((prev) =>
-      prev.map((e) =>
-        e.expenseId === updated.expenseId ? updated : e
-      )
-    )
+      prev.map((e) => (e.expenseId === updated.expenseId ? updated : e))
+    );
   }
 
-  if (loading) {
-    return <p className="text-center mt-10">Loading...</p>
+  
+  if (!isLoaded || loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+        <p className="text-muted-foreground mt-4">Loading CashTrail...</p>
+      </div>
+    );
   }
 
   return (
     <main className="min-h-screen bg-gray-50 p-8">
-      <Card className="max-w-4xl mx-auto">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>CashTrail — Expenses</CardTitle>
-          <AddExpenseDialog />
+      <Card className="max-w-4xl mx-auto shadow-sm">
+        <CardHeader className="flex flex-row items-center justify-between border-b mb-6">
+          <CardTitle className="text-2xl font-bold text-gray-800">
+            CashTrail — Expenses
+          </CardTitle>
+          <div className="flex items-center gap-4">
+            <AddExpenseDialog />
+            
+            <UserButton afterSignOutUrl="/sign-in" />
+          </div>
         </CardHeader>
 
         <CardContent>
@@ -88,5 +105,5 @@ export default function Home() {
         />
       )}
     </main>
-  )
+  );
 }

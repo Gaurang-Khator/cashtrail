@@ -69,7 +69,9 @@ export async function updateExpense(expenseId: string, payload:{
 }) {
     const res = await fetch(`${API_BASE_URL}/expenses/${expenseId}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json"},
+        headers: { 
+            "Content-Type": "application/json"
+        },
         body: JSON.stringify(payload),
     })
 

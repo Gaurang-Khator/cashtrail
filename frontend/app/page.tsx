@@ -8,6 +8,7 @@ import { AddExpenseDialog } from "@/components/addExpenseDialog";
 import { EditExpenseDialog } from "@/components/editExpenseDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useUser, UserButton } from "@clerk/nextjs";
+import { MonthlyIncomeDialog } from "@/components/monthlyIncomeDialog";
 
 export default function Home() {
   const { user, isLoaded } = useUser();
@@ -83,6 +84,7 @@ export default function Home() {
           </CardTitle>
           <div className="flex items-center gap-4">
             <AddExpenseDialog />
+            <MonthlyIncomeDialog />
             
             <UserButton afterSignOutUrl="/sign-in" />
           </div>

@@ -82,3 +82,33 @@ export async function updateExpense(expenseId: string, payload:{
     return res.json();
 }
 
+export async function getMonthlyIncome(userId: string, month: string) {
+    const res = await fetch(`${API_BASE_URL}/income?userId=${userId}&month=${month}`,
+        { cache: "no-store" }
+    );
+
+    if(!res.ok) {
+        throw new Error("Failed to fetch monthly income");
+    }
+    return res.json();
+}
+
+export async function setMonthlyIncome(data: {
+    userId: string, 
+    month: string, 
+    income: number
+}) {
+    const res = await fetch(`${API_BASE_URL}/income`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+    });
+
+    if(!res.ok) {
+        throw new Error("Failed to set monthly income");
+    }
+
+    return res.json();
+}

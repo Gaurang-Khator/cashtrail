@@ -98,7 +98,6 @@ export default function Home() {
         <p className="text-muted-foreground">Here is what is happening with your money today.</p>
       </header>
 
-      {/* KPI Cards Section with Real Data */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 ">
         <KPICard 
           title="Total Balance" 

@@ -5,14 +5,14 @@ import { getExpenses, deleteExpense, Expense } from "@/lib/api";
 import { useUser } from "@clerk/nextjs";
 import { ExpenseTable } from "@/components/expenseTable";
 import { AddExpenseDialog } from "@/components/addExpenseDialog";
-import { EditExpenseDialog } from "@/components/editExpenseDialog"; // Added this
+import { EditExpenseDialog } from "@/components/editExpenseDialog"; 
 import { Card, CardContent } from "@/components/ui/card";
 
 export default function ExpensesPage() {
     const { user, isLoaded } = useUser();
     const [expenses, setExpenses] = useState<Expense[]>([]);
     const [loading, setLoading] = useState(true);
-    const [editing, setEditing] = useState<Expense | null>(null); // Added state for editing
+    const [editing, setEditing] = useState<Expense | null>(null); 
 
     const fetchExpenses = async () => {
         if (!user?.id) return;
@@ -67,13 +67,12 @@ export default function ExpensesPage() {
                                 await deleteExpense(user!.id, id);
                                 fetchExpenses();
                             }} 
-                            onEdit={(expense) => setEditing(expense)} // Fixed this line
+                            onEdit={(expense) => setEditing(expense)} 
                         />
                     )}
                 </CardContent>
             </Card>
 
-            {/* Added the Edit Dialog Component here */}
             {editing && (
                 <EditExpenseDialog
                     expense={editing}
@@ -81,7 +80,7 @@ export default function ExpensesPage() {
                     onClose={() => setEditing(null)}
                     onUpdated={() => {
                         setEditing(null);
-                        fetchExpenses(); // Refresh the list after update
+                        fetchExpenses(); 
                     }}
                 />
             )}

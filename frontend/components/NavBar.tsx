@@ -16,13 +16,11 @@ export function NavBar() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
       <div className="flex items-center justify-between px-6 h-16 max-w-7xl mx-auto">
-        {/* Left: Logo */}
         <div className="flex items-center gap-2">
           <Cloud className="w-6 h-6 text-primary fill-primary/20" />
           <span className="font-bold text-xl tracking-tight"><Link href={"/"}>CashTrail</Link></span>
         </div>
 
-        {/* Center: Navigation */}
         <div className="hidden md:flex gap-8">
           {navItems.map((item) => (
             <Link
@@ -37,7 +35,6 @@ export function NavBar() {
           ))}
         </div>
 
-        {/* Right: User */}
         <div className="flex items-center">
           <UserButton afterSignOutUrl="/sign-in" />
         </div>

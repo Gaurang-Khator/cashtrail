@@ -17,8 +17,8 @@ export default function Home() {
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return "Good Morning";
-    if (hour < 18) return "Good Afternoon";
+    if (hour < 12 && hour > 4) return "Good Morning";
+    if (hour < 18 && hour >= 12) return "Good Afternoon";
     return "Good Evening";
   };
 
@@ -76,7 +76,7 @@ export default function Home() {
     try {
       await deleteExpense(user.id, expenseId);
     } catch (error) {
-      loadExpenses(); // Rollback on failure
+      loadExpenses(); 
     }
   }
 
@@ -101,12 +101,11 @@ export default function Home() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 ">
         <KPICard 
           title="Total Balance" 
-          value="₹0" // Update this once your Income API is ready
+          value="₹0" // Update income fetching 
           icon={<Wallet className="w-4 h-4" />} 
-          active 
         />
         <KPICard 
-          title={`Monthly Expenses ${new Date().toLocaleString('default', { month: 'long' })}` }
+          title={ "Monthly Expenses" }
           value={`₹${stats.monthlyTotal.toLocaleString('en-IN')}`} 
           icon={<TrendingUp className="w-4 h-4" />} 
         />

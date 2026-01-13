@@ -9,9 +9,6 @@ export function KPICard({ title, value, icon, active }: { title: string; value: 
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold text-green-300">{value}</div>
-        {active && (
-          <div className="absolute bottom-0 left-0 w-full h-1 bg-primary" />
-        )}
       </CardContent>
     </Card>
   );

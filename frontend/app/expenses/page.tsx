@@ -22,8 +22,11 @@ export default function ExpensesPage() {
     const [loading, setLoading] = useState(true);
     const [editing, setEditing] = useState<Expense | null>(null);
     const [filterCategory, setFilterCategory] = useState<string>("");
-    const [filterMonth, setFilterMonth] = useState<string>("");
-    const [filterYear, setFilterYear] = useState<string>("");
+    
+    // Initialize with current month
+    const currentMonth = new Date().getMonth() + 1;
+    const currentYear = new Date().getFullYear();
+    const [filterMonth, setFilterMonth] = useState<string>(`${currentYear}-${String(currentMonth).padStart(2, '0')}`);
 
     const fetchExpenses = async () => {
         if (!user?.id) return;
@@ -116,7 +119,7 @@ export default function ExpensesPage() {
                                 </PopoverContent>
                             </Popover>
                         </div>
-                        <span className="text-2xl font-bold text-primary">₹{monthlyTotal.toLocaleString()}</span>
+                        <span className="text-2xl font-bold text-green-400">₹{monthlyTotal.toLocaleString()}</span>
                     </div>
                     
                     {loading ? (

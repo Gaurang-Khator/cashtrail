@@ -19,7 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <html lang="en" className="dark"> 
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}>
           <NavBar />
-          <main className="pt-16 min-h-screen"> {/* pt-16 accounts for fixed navbar height */}
+          <main className="pt-16 min-h-screen"> 
             {children}
           </main>
         </body>

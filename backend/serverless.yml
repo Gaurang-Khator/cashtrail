@@ -26,6 +26,7 @@ provider:
     cors:
       allowedOrigins: 
         - http://localhost:3000
+        - https://cashtrail-app.vercel.app
       allowedHeaders:
         - Content-Type
       allowedMethods:

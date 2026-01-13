@@ -45,11 +45,11 @@ export function NavBar() {
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
-          <UserButton afterSignOutUrl="/sign-in" />
+          <UserButton afterSignOutUrl="/" />
         </div>
 
         <div className="hidden md:flex items-center">
-          <UserButton afterSignOutUrl="/sign-in" />
+          <UserButton afterSignOutUrl="/" />
         </div>
       </div>
 

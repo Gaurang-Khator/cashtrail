@@ -5,7 +5,7 @@ import { Cloud, TrendingUp, BarChart3, Lock, Zap } from "lucide-react";
 
 export function Landing() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-background via-background to-background/95">
+    <main className="min-h-screen bg-linear-to-b from-background via-background to-background/95">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
         <div className="flex items-center justify-between px-6 h-16 max-w-7xl mx-auto w-full">
@@ -128,7 +128,7 @@ export function Landing() {
 
       {/* CTA Section */}
       <section className="py-20 px-6 max-w-7xl mx-auto">
-        <div className="rounded-lg bg-gradient-to-r from-primary/20 to-green-400/20 border border-primary/50 p-12 text-center space-y-6">
+        <div className="rounded-lg bg-linear-to-r from-primary/20 to-green-400/20 border border-primary/50 p-12 text-center space-y-6">
           <h2 className="text-3xl md:text-4xl font-bold">Start Managing Your Money Today</h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Join thousands of users who are taking control of their finances with CashTrail.
@@ -144,8 +144,12 @@ export function Landing() {
 
       {/* Footer */}
       <footer className="border-t border-border bg-background/50 py-8 px-6">
-        <div className="max-w-7xl mx-auto text-center text-muted-foreground">
-          <p>&copy; 2026 CashTrail. All rights reserved.</p>
+        <div className="max-w-7xl mx-auto text-center text-muted-foreground space-y-3">
+          <p className="text-sm">&copy; 2026 CashTrail. All rights reserved.</p>
+          <div className="inline-flex items-center justify-center gap-2 px-3 py-1 rounded-full border border-zinc-700 bg-zinc-800/50">
+            <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
+            <p className="text-sm text-green-300">Made by Gaurang Khator</p>
+          </div>
         </div>
       </footer>
     </main>

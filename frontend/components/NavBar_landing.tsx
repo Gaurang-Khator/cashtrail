@@ -10,10 +10,10 @@ const NavBar_landing = () => {
                     <span className="font-bold text-xl tracking-tight"><Link href={"/"}>CashTrail</Link></span>
                 </div>
                 <div className="flex items-center gap-4">
-                    <Link href="/sign-in" className="text-sm font-medium text-muted-foreground hover:text-green-400 transition-colors px-2 py-2">
+                    <Link href="/sign-in" className="text-sm font-medium text-muted-foreground hover:text-green-400 active:text-green-400 transition-colors px-2 py-2">
                     Sign In
                     </Link>
-                    <Link href="/sign-up" className="text-sm font-medium bg-primary text-primary-foreground px-4 py-2 rounded-sm hover:bg-primary/90 transition-colors">
+                    <Link href="/sign-up" className="text-sm font-medium bg-primary text-primary-foreground px-4 py-2 rounded-sm hover:bg-primary/90 active:bg-primary/90 transition-colors">
                     Sign Up
                     </Link>
                 </div>

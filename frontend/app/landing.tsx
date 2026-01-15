@@ -3,27 +3,13 @@
 import Link from "next/link";
 import { Cloud, TrendingUp, BarChart3, Lock, Zap } from "lucide-react";
 import Footer  from "@/components/Footer";
+import NavBar_landing from "@/components/NavBar_landing";
 
 export function Landing() {
   return (
     <main className="min-h-screen bg-linear-to-b from-background via-background to-background/95">
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-        <div className="flex items-center justify-between px-6 h-16 max-w-7xl mx-auto w-full">
-          <div className="flex items-center gap-2">
-            <Cloud className="w-6 h-6 text-primary fill-primary/20" />
-            <span className="font-bold text-xl">CashTrail</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link href="/sign-in" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-              Sign In
-            </Link>
-            <Link href="/sign-up" className="text-sm font-medium bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors">
-              Sign Up
-            </Link>
-          </div>
-        </div>
-      </nav>
+      
+      <NavBar_landing />
 
       {/* Hero Section */}
       <section className="pt-32 pb-20 px-6 max-w-7xl mx-auto">

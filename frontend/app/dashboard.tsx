@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useUser } from "@clerk/nextjs";
 import { TrendingUp, Wallet, ArrowUpRight } from "lucide-react";
 import { KPICard } from "@/components/kpicard";
+import { NavBar } from "@/components/NavBar_dashboard";
 
 export function Dashboard() {
   const { user, isLoaded } = useUser();
@@ -91,6 +92,7 @@ export function Dashboard() {
 
   return (
     <main className="max-w-7xl mx-auto p-6 lg:p-10 space-y-10">
+      <NavBar />
       <header className="space-y-1">
         <h1 className="text-3xl font-bold tracking-tight">
           {getGreeting()}, <span className=" text-green-400">{user?.firstName || "User"}</span> !

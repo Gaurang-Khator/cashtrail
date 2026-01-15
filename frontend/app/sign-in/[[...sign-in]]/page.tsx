@@ -1,9 +1,13 @@
 import { SignIn } from "@clerk/nextjs";
 import Footer  from "@/components/Footer";
+import NavBar_landing  from "@/components/NavBar_landing";
 
 export default function SignInPage() {
     return (
         <main className="min-h-screen bg-background/95 flex flex-col">
+            
+            <NavBar_landing />
+
             <div className="flex-1 flex items-center justify-center px-4 py-6">
                 <div className="w-full max-w-md">
                     <SignIn 

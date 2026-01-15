@@ -123,3 +123,21 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Recharts styling */
+.recharts-default-tooltip {
+  outline: none !important;
+  border: none !important;
+}
+
+.recharts-surface {
+  outline: none !important;
+}
+
+.recharts-bar {
+  outline: none !important;
+}
+
+.recharts-bar:hover {
+  filter: brightness(1.1);
+}

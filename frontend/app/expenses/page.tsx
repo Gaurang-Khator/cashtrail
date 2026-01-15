@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarIcon } from "lucide-react";
+import { NavBar } from "@/components/NavBar_dashboard";
 
 export default function ExpensesPage() {
     const { user, isLoaded } = useUser();
@@ -86,6 +87,7 @@ export default function ExpensesPage() {
 
     return (
         <main className="max-w-7xl mx-auto p-6 lg:p-10 space-y-8">
+            <NavBar />
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold">All Expenses</h1>
@@ -98,7 +100,7 @@ export default function ExpensesPage() {
                 <CardContent className="pt-6">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                         <div className="flex items-center gap-3">
-                            <h2 className="text-lg font-semibold text-muted-foreground">Total for the Month:</h2>
+                            <h2 className="text-lg font-semibold text-muted-foreground">Total for the Month :</h2>
                             <Popover>
                                 <PopoverTrigger asChild>
                                     <Button variant="outline" className="flex justify-center font-normal gap-4">

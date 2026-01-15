@@ -183,7 +183,6 @@ export function Dashboard() {
                 content={<CustomTooltip />}
                 cursor={false}
                 wrapperStyle={{ outline: 'none' }}
-                
               />
               <Bar 
                 dataKey="amount" 

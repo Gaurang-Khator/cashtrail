@@ -1,3 +1,4 @@
+import Footer from "@/components/Footer";
 import { SignUp } from "@clerk/nextjs";
 
 export default function SignUpPage() {
@@ -28,16 +29,8 @@ export default function SignUpPage() {
                 </div>
             </div>
             
-            {/* Footer */}
-            <footer className="border-t border-border bg-background/50 py-6 px-6">
-                <div className="max-w-7xl mx-auto text-center text-muted-foreground space-y-3">
-                    <p className="text-sm">&copy; 2026 CashTrail. All rights reserved.</p>
-                    <div className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full border-2 border-zinc-700 bg-zinc-800/50">
-                        <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
-                        <p className="text-sm text-zinc-300">Made by Gaurang Khator</p>
-                    </div>
-                </div>
-            </footer>
+            <Footer />
+            
         </main>
     );
 }

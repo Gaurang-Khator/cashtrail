@@ -1,4 +1,5 @@
 import { SignIn } from "@clerk/nextjs";
+import Footer  from "@/components/Footer";
 
 export default function SignInPage() {
     return (
@@ -28,16 +29,8 @@ export default function SignInPage() {
                 </div>
             </div>
             
-            {/* Footer */}
-            <footer className="border-t border-border bg-background/50 py-4 sm:py-6 px-6">
-                <div className="max-w-7xl mx-auto text-center text-muted-foreground space-y-2">
-                    <p className="text-xs sm:text-sm">&copy; 2026 CashTrail. All rights reserved.</p>
-                    <div className="inline-flex items-center justify-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border-2 border-zinc-700 bg-zinc-800/50">
-                        <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-400"></div>
-                        <p className="text-xs sm:text-sm text-zinc-300">Made by Gaurang Khator</p>
-                    </div>
-                </div>
-            </footer>
+            <Footer />
+
         </main>
     );
 }

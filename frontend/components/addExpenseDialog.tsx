@@ -45,8 +45,8 @@ export function AddExpenseDialog({ onSuccess }: { onSuccess: () => void }) {
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button className="bg-primary hover:bg-primary/90">
-                    <Plus className="w-4 h-4 mr-2" /> Add Expense
+                <Button className="gap-2 bg-green-600 hover:bg-green-700 text-white">
+                    <Plus className="h-4 w-4" /> Add Expense
                 </Button>
             </DialogTrigger>
 

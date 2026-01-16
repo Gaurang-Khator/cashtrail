@@ -30,12 +30,10 @@ export function Dashboard() {
     try {
       const now = new Date();
       const monthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-      
       const [expensesData, incomeData] = await Promise.all([
         getExpenses(user.id),
         getMonthlyIncome(user.id, monthStr)
       ]);
-
       setExpenses(expensesData);
       setIncome(incomeData.income || 0);
     } catch (error) {
@@ -70,13 +68,41 @@ export function Dashboard() {
     };
   }, [expenses, income]);
 
-  // Data for the Pie Chart
   const pieData = useMemo(() => [
-    { name: 'Expenses', value: stats.monthlyExpenses, color: '#ef4444' }, // Red for expenses
-    { name: 'Savings', value: stats.totalSavings, color: '#22c55e' },   // Green for savings
+    { name: 'Expenses', value: stats.monthlyExpenses, color: '#ef4444' },
+    { name: 'Savings', value: stats.totalSavings, color: '#22c55e' },
   ], [stats]);
 
-  // Last 7 Days Chart Data
+
+  const BarTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="p-3 border border-green-900/30 bg-zinc-950 rounded-lg shadow-xl backdrop-blur-md">
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">{label}</p>
+          <p className="text-sm font-bold text-green-400">
+            ₹{payload[0].value.toLocaleString('en-IN')}
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  const PieTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="p-3 border border-green-900/30 bg-zinc-950 rounded-lg shadow-xl backdrop-blur-md">
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">{data.name}</p>
+          <p className="text-sm font-bold" style={{ color: data.color }}>
+            ₹{data.value.toLocaleString('en-IN')}
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
+
   const last7DaysData = useMemo(() => {
     const days = [];
     const now = new Date();
@@ -110,32 +136,33 @@ export function Dashboard() {
   if (!isLoaded || loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[80vh]">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-500"></div>
         <p className="text-muted-foreground mt-4">Loading Dashboard...</p>
       </div>
     );
   }
 
   return (
-    <main className="max-w-7xl mx-auto p-6 lg:p-10 space-y-10">
+    <main className="max-w-7xl mx-auto p-4 md:p-6 lg:p-10 space-y-6 md:space-y-10">
       <NavBar />
-      <header className="space-y-1 flex items-center justify-between">
+      
+      <header className="space-y-2 flex flex-col md:flex-row md:items-center justify-between mt-16 md:mt-0">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">
             {getGreeting()}, <span className="text-green-400">{user?.firstName || "User"}</span>!
           </h1>
-          <p className="text-muted-foreground">Detailed summary of your monthly financial health.</p>
+          <p className="text-sm text-muted-foreground">Your financial summary for this month.</p>
         </div>
         <button
           onClick={() => window.location.href = '/expenses'}
-          className="text-sm text-primary hover:text-primary/80 font-medium transition-colors whitespace-nowrap"
+          className="w-full md:w-auto text-sm bg-green-500/10 text-green-400 border border-green-500/20 px-4 py-2 rounded-lg hover:bg-green-500/20 active:bg-green-500/20 transition-all font-medium"
         >
-          Add New Expense
+          Add a new Expense
         </button>
       </header>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
         <KPICard 
           title="Monthly Income" 
           value={`₹${stats.monthlyIncome.toLocaleString('en-IN')}`} 
@@ -154,60 +181,73 @@ export function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Bar Chart: */}
-        <Card className="bg-card/40 border-border border-2 border-dashed">
-          <CardHeader>
+        {/* Bar Chart Card */}
+        <Card className="bg-card/40 border-border border-2 border-dashed overflow-hidden">
+          <CardHeader className="pb-2">
             <CardTitle className="text-lg font-medium">Spending Trend</CardTitle>
-            <p className="text-sm text-muted-foreground">Last 7 days daily spending</p>
+            <p className="text-xs text-muted-foreground">Daily transactions (Last 7 Days)</p>
           </CardHeader>
-          <CardContent className="h-[300px]">
+          <CardContent className="h-[250px] md:h-[300px] w-full pr-4">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={last7DaysData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
-                <XAxis dataKey="date" stroke="var(--color-muted-foreground)" fontSize={12} tickLine={false} axisLine={false} />
-                <YAxis stroke="var(--color-muted-foreground)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(val) => `₹${val}`} />
-                <Tooltip 
-                   contentStyle={{ backgroundColor: 'hsl(var(--background))', borderRadius: '8px', border: '1px solid hsl(var(--border))' }}
-                   itemStyle={{ color: '#22c55e' }}
-                   cursor={{ fill: 'rgba(34, 197, 94, 0.1)' }}
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(34, 197, 94, 0.05)" vertical={false} />
+                <XAxis 
+                  dataKey="date" 
+                  stroke="#71717a" 
+                  fontSize={10} 
+                  tickLine={false} 
+                  axisLine={false} 
+                  dy={10}
                 />
-                <Bar dataKey="amount" fill="#22c55e" radius={[4, 4, 0, 0]} />
+                <YAxis 
+                  stroke="#71717a" 
+                  fontSize={10} 
+                  tickLine={false} 
+                  axisLine={false} 
+                  tickFormatter={(val) => `₹${val}`}
+                />
+                <Tooltip content={<BarTooltip />} cursor={{ fill: 'rgba(34, 197, 94, 0.05)' }} />
+                <Bar dataKey="amount" fill="#22c55e" radius={[4, 4, 0, 0]} barSize={30} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
-        {/* Pie Chart: */}
-        <Card className="bg-card/40 border-border border-2 border-dashed">
-          <CardHeader>
+        {/* Pie Chart Card */}
+        <Card className="bg-card/40 border-border border-2 border-dashed overflow-hidden">
+          <CardHeader className="pb-2">
             <CardTitle className="text-lg font-medium">Budget Allocation</CardTitle>
-            <p className="text-sm text-muted-foreground">Savings vs Expenses for this month</p>
+            <p className="text-xs text-muted-foreground">Monthly Savings vs Expenses</p>
           </CardHeader>
-          <CardContent className="h-[300px]">
+          <CardContent className="h-[250px] md:h-[300px] w-full">
             {stats.monthlyIncome > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={pieData}
-                    innerRadius={60}
-                    outerRadius={80}
-                    paddingAngle={5}
+                    innerRadius="60%"
+                    outerRadius="80%"
+                    paddingAngle={8}
                     dataKey="value"
+                    stroke="none"
                   >
                     {pieData.map((entry, index) => (
                       <PieCell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: 'hsl(var(--background))', borderRadius: '8px', border: '1px solid hsl(var(--border))' }}
+                  <Tooltip content={<PieTooltip />} />
+                  <Legend 
+                    verticalAlign="bottom" 
+                    height={36} 
+                    iconType="circle"
+                    wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }}
                   />
-                  <Legend verticalAlign="bottom" height={36}/>
                 </PieChart>
               </ResponsiveContainer>
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                <PieChartIcon className="w-12 h-12 mb-2 opacity-20" />
-                <p>Add income to see budget allocation</p>
+                <PieChartIcon className="w-10 h-10 mb-2 opacity-20" />
+                <p className="text-xs">Add income to see budget allocation</p>
               </div>
             )}
           </CardContent>

@@ -103,17 +103,12 @@ export function Dashboard() {
     }));
   }, [expenses]);
 
-  const getBarColor = (amount: number) => {
-    if (amount < 500) return "#22c55e";      // Green
-    if (amount < 3000) return "#eab308";     // Yellow
-    return "#ef4444";                         // Red
-  };
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const amount = payload[0].value;
       if (amount === 0) return null;
-      const color = getBarColor(amount);
+      const color = "#22c55e";
       return (
         <div className="p-2 border border-border bg-background rounded-md shadow-md">
           <p style={{ color }}>Amount: ₹{amount.toLocaleString('en-IN')}</p>
@@ -146,7 +141,7 @@ export function Dashboard() {
           onClick={() => window.location.href = '/expenses'}
           className="text-sm text-primary hover:text-primary/80 font-medium transition-colors whitespace-nowrap"
         >
-          + Add Expense
+          Click here to Add Expense
         </button>
       </header>
 
@@ -167,6 +162,7 @@ export function Dashboard() {
           icon={<ArrowUpRight className="w-4 h-4" />} 
         />
       </div>
+      
 
       <Card className="bg-card/40 border-border border-2 border-dashed">
         <CardHeader>
@@ -190,7 +186,7 @@ export function Dashboard() {
                 isAnimationActive={true}
               >
                 {last7DaysData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={getBarColor(entry.amount)} />
+                  <Cell key={`cell-${index}`} fill="#22c55e" />
                 ))}
               </Bar>
             </BarChart>

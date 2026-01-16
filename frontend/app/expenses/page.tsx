@@ -6,15 +6,16 @@ import { useUser } from "@clerk/nextjs";
 import { ExpenseTable } from "@/components/expenseTable";
 import { AddExpenseDialog } from "@/components/addExpenseDialog";
 import { EditExpenseDialog } from "@/components/editExpenseDialog"; 
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
+import { KPICard } from "@/components/kpicard";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, ShoppingCart, Receipt, CreditCard } from "lucide-react";
 import { NavBar } from "@/components/NavBar_dashboard";
 
 export default function ExpensesPage() {
@@ -22,9 +23,7 @@ export default function ExpensesPage() {
     const [expenses, setExpenses] = useState<Expense[]>([]);
     const [loading, setLoading] = useState(true);
     const [editing, setEditing] = useState<Expense | null>(null);
-    const [filterCategory, setFilterCategory] = useState<string>("");
     
-    // Initialize with current month
     const currentMonth = new Date().getMonth() + 1;
     const currentYear = new Date().getFullYear();
     const [filterMonth, setFilterMonth] = useState<string>(`${currentYear}-${String(currentMonth).padStart(2, '0')}`);
@@ -45,112 +44,97 @@ export default function ExpensesPage() {
         if (isLoaded) fetchExpenses();
     }, [isLoaded, user?.id]);
 
-    // Get unique categories for filter
-    const categories = useMemo(() => {
-        const cats = new Set(expenses.map(e => e.category));
-        return Array.from(cats).sort();
-    }, [expenses]);
-
-    // Get unique months and years for filter
-    const monthYears = useMemo(() => {
-        const months = new Set<string>();
-        expenses.forEach(e => {
-            const date = new Date(e.date);
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear();
-            months.add(`${year}-${month}`);
-        });
-        return Array.from(months).sort().reverse();
-    }, [expenses]);
-
-    // Filter expenses based on selected filters
     const filteredExpenses = useMemo(() => {
         return expenses.filter(e => {
-            // Category filter
-            if (filterCategory && e.category !== filterCategory) return false;
-            
-            // Month/Year filter
-            if (filterMonth) {
-                const date = new Date(e.date);
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const year = date.getFullYear();
-                if (`${year}-${month}` !== filterMonth) return false;
-            }
-            
-            return true;
+            const date = new Date(e.date);
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const y = date.getFullYear();
+            return `${y}-${m}` === filterMonth;
         });
-    }, [expenses, filterCategory, filterMonth]);
+    }, [expenses, filterMonth]);
 
     const monthlyTotal = useMemo(() => {
         return filteredExpenses.reduce((sum, e) => sum + e.amount, 0);
     }, [filteredExpenses]);
 
     return (
-        <main className="max-w-7xl mx-auto p-6 lg:p-10 space-y-8">
-            <NavBar />
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold">All Expenses</h1>
-                    <p className="text-muted-foreground">Manage and track your spending history.</p>
-                </div>
-                <AddExpenseDialog onSuccess={fetchExpenses} />
-            </div>
-
-            <Card className="bg-card border-none shadow-sm">
-                <CardContent className="pt-6">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                        <div className="flex items-center gap-3">
-                            <h2 className="text-lg font-semibold text-muted-foreground">Total for the Month :</h2>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button variant="outline" className="flex justify-center font-normal gap-4">
-                                        
-                                        {filterMonth ? new Date(parseInt(filterMonth.split('-')[0]), parseInt(filterMonth.split('-')[1]) - 1).toLocaleString('default', { month: 'long', year: 'numeric' }) : new Date().toLocaleString('default', { month: 'long', year: 'numeric' })}
-                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-1" align="start">
-                                    <Calendar 
-                                        month={filterMonth ? parseInt(filterMonth.split('-')[1]) - 1 : new Date().getMonth()}
-                                        year={filterMonth ? parseInt(filterMonth.split('-')[0]) : new Date().getFullYear()}
-                                        onMonthYearChange={(month, year) => {
-                                            const monthStr = String(month + 1).padStart(2, '0');
-                                            setFilterMonth(`${year}-${monthStr}`);
-                                        }}
-                                    />
-                                </PopoverContent>
-                            </Popover>
-                        </div>
-                        <span className="text-2xl font-bold text-green-400">₹{monthlyTotal.toLocaleString()}</span>
+        <main className="min-h-screen bg-background">
+            <div className="max-w-7xl mx-auto p-6 lg:p-10 space-y-8">
+                <NavBar />
+                
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h1 className="text-3xl font-bold">Expenses</h1>
+                        <p className="text-muted-foreground">Detailed breakdown of your spending.</p>
                     </div>
-                    
-                    {loading ? (
-                        <div className="py-20 text-center text-muted-foreground animate-pulse">Updating records...</div>
-                    ) : (
-                        <ExpenseTable 
-                            expenses={filteredExpenses} 
-                            onDelete={async (id) => {
-                                await deleteExpense(user!.id, id);
-                                fetchExpenses();
-                            }} 
-                            onEdit={(expense) => setEditing(expense)} 
-                        />
-                    )}
-                </CardContent>
-            </Card>
+                    <AddExpenseDialog onSuccess={fetchExpenses} />
+                </div>
 
+                <div className="grid gap-4 md:grid-cols-3">
+                    <KPICard 
+                        title="Total Spent" 
+                        value={`₹${monthlyTotal.toLocaleString()}`} 
+                        icon={<Receipt className="h-4 w-4" />} 
+                    />
+                    <KPICard 
+                        title="Transactions" 
+                        value={filteredExpenses.length.toString()} 
+                        icon={<ShoppingCart className="h-4 w-4" />} 
+                    />
+                    <KPICard 
+                        title="Avg. per Expense" 
+                        value={`₹${filteredExpenses.length > 0 ? Math.round(monthlyTotal / filteredExpenses.length).toLocaleString() : 0}`} 
+                        icon={<CreditCard className="h-4 w-4" />} 
+                    />
+                </div>
 
-            {editing && (
-                <EditExpenseDialog
-                    expense={editing}
-                    open={!!editing}
-                    onClose={() => setEditing(null)}
-                    onUpdated={() => {
-                        setEditing(null);
-                        fetchExpenses(); 
-                    }}
-                />
-            )}
+                <Card className="border-none shadow-sm">
+                    <CardHeader className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <CardTitle className="text-xl">Transaction History</CardTitle>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button variant="outline" className="gap-2">
+                                    {new Date(parseInt(filterMonth.split('-')[0]), parseInt(filterMonth.split('-')[1]) - 1).toLocaleString('default', { month: 'long', year: 'numeric' })}
+                                    <CalendarIcon className="h-4 w-4" />
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-1">
+                                <Calendar 
+                                    month={parseInt(filterMonth.split('-')[1]) - 1}
+                                    year={parseInt(filterMonth.split('-')[0])}
+                                    onMonthYearChange={(m, y) => setFilterMonth(`${y}-${String(m + 1).padStart(2, '0')}`)}
+                                />
+                            </PopoverContent>
+                        </Popover>
+                    </CardHeader>
+                    <CardContent>
+                        {loading ? (
+                            <div className="py-20 text-center animate-pulse">Loading transactions...</div>
+                        ) : (
+                            <ExpenseTable 
+                                expenses={filteredExpenses} 
+                                onDelete={async (id) => {
+                                    await deleteExpense(user!.id, id);
+                                    fetchExpenses();
+                                }} 
+                                onEdit={(expense) => setEditing(expense)} 
+                            />
+                        )}
+                    </CardContent>
+                </Card>
+
+                {editing && (
+                    <EditExpenseDialog
+                        expense={editing}
+                        open={!!editing}
+                        onClose={() => setEditing(null)}
+                        onUpdated={() => {
+                            setEditing(null);
+                            fetchExpenses(); 
+                        }}
+                    />
+                )}
+            </div>
         </main>
     );
 }

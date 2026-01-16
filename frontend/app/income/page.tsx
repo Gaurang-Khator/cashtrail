@@ -185,7 +185,7 @@ export default function IncomePage() {
                 <p>No income recorded for this month.</p>
               </div>
             ) : (
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/10 p-6 rounded-xl border border-green-100 dark:border-green-900/30">
+              <div className="bg-linear-to-br from-green-50 to-emerald-50 dark:from-green-900/10 p-6 rounded-xl border border-green-100 dark:border-green-900/30">
                 <div className="flex justify-between items-center">
                    <div>
                       <p className="text-sm text-muted-foreground">Monthly Total</p>

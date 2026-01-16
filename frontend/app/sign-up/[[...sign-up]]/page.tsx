@@ -1,32 +1,30 @@
-import Footer from "@/components/Footer";
+'use client';
+
 import { SignUp } from "@clerk/nextjs";
-import NavBar_landing  from "@/components/NavBar_landing";
+import { dark } from "@clerk/themes";
+import Footer from "@/components/Footer";
+import NavBar_landing from "@/components/NavBar_landing";
 
 export default function SignUpPage() {
     return (
-        <main className="min-h-screen bg-background/95 flex flex-col">
-            
+        <main className="min-h-screen bg-background flex flex-col">
             <NavBar_landing />
 
             <div className="flex-1 flex items-center justify-center px-4 py-12">
                 <div className="w-full max-w-md">
                     <SignUp 
                         appearance={{
-                            elements: {
-                                card: "bg-background/60 border border-border/50 shadow-none rounded-2xl p-8 backdrop-blur-sm",
-                                rootBox: "w-full",
-                                headerTitle: "text-2xl font-bold text-foreground",
-                                headerSubtitle: "text-sm text-muted-foreground",
-                                socialButtonsBlockButton: "border border-border bg-background/30 hover:bg-background/50 text-foreground font-medium rounded-lg py-2.5 px-4",
-                                formButtonPrimary: "bg-green-400 hover:bg-green-500 text-foreground font-semibold rounded-lg py-2.5 w-full",
-                                formFieldInput: "bg-background/30 border border-border/30 text-foreground placeholder:text-muted-foreground rounded-lg",
-                                formFieldLabel: "text-sm font-medium text-foreground",
-                                footerActionLink: "text-green-400 hover:text-green-300 font-medium",
-                                dividerLine: "bg-border/30",
-                                dividerText: "text-muted-foreground",
-                            },
+                            baseTheme: dark,
                             variables: {
-                                colorPrimary: "#4ade80",
+                                colorPrimary: "#22c55e", // Standard green-500
+                                colorBackground: "#09090b", // Dark background
+                            },
+                            elements: {
+                                card: "bg-background/60 border border-green-900/30 shadow-2xl rounded-2xl p-6 sm:p-8 backdrop-blur-md",
+                                rootBox: "w-full",
+                                headerTitle: "text-2xl font-bold text-green-400",
+                                formButtonPrimary: "bg-green-500 hover:bg-green-600 text-black font-bold py-2.5",
+                                footerActionLink: "text-green-400 hover:text-green-300",
                             }
                         }}
                     />
@@ -34,7 +32,6 @@ export default function SignUpPage() {
             </div>
             
             <Footer />
-            
         </main>
     );
 }

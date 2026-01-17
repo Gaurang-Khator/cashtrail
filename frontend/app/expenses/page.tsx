@@ -109,7 +109,7 @@ export default function ExpensesPage() {
                     </CardHeader>
                     <CardContent>
                         {loading ? (
-                            <div className="py-20 text-center animate-pulse">Loading transactions...</div>
+                            <div className="py-20 text-center animate-pulse">Syncing Records...</div>
                         ) : (
                             <ExpenseTable 
                                 expenses={filteredExpenses} 

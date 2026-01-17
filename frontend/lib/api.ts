@@ -9,6 +9,15 @@ export interface Expense {
     createdAt: string
 }
 
+export interface Income {
+    userId: string,
+    incomeId: string,
+    income: number,
+    source: string,
+    month: string,
+    createdAt: string
+}
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 if(!API_BASE_URL) {
     throw new Error("API_BASE_URL is not defined");
@@ -82,33 +91,51 @@ export async function updateExpense(expenseId: string, payload:{
     return res.json();
 }
 
-export async function getMonthlyIncome(userId: string, month: string) {
+
+
+export async function getMonthlyIncome(userId: string, month: string): Promise<Income[]> {
     const res = await fetch(`${API_BASE_URL}/income?userId=${userId}&month=${month}`,
         { cache: "no-store" }
     );
-
-    if(!res.ok) {
-        throw new Error("Failed to fetch monthly income");
-    }
-    return res.json();
+    if(!res.ok) throw new Error("Failed to fetch monthly income");
+    const data = await res.json();
+    return data.income;
 }
 
 export async function setMonthlyIncome(data: {
     userId: string, 
     month: string, 
-    income: number
+    source: string,
+    income: number,
 }) {
     const res = await fetch(`${API_BASE_URL}/income`, {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
     });
+    if(!res.ok) throw new Error("Failed to set monthly income");
+    return res.json();
+}
 
-    if(!res.ok) {
-        throw new Error("Failed to set monthly income");
-    }
+export async function updateIncome(incomeId: string, payload: {
+    userId: string,
+    month?: string,
+    source?: string,
+    income?: number,
+}) {
+    const res = await fetch(`${API_BASE_URL}/income/${incomeId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+    });
+    if(!res.ok) throw new Error("Failed to update income");
+    return res.json();
+}
 
+export async function deleteIncome(userId: string, incomeId: string){
+    const res = await fetch(`${API_BASE_URL}/income/${incomeId}?userId=${userId}`, {
+        method: 'DELETE'
+    });
+    if(!res.ok) throw new Error("Failed to delete income!");
     return res.json();
 }

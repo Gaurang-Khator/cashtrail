@@ -50,18 +50,18 @@ export function AddIncomeDialog({ onSuccess }: { onSuccess: () => void }) {
         </Button>
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent className="sm:max-w-[425px] bg-card border-border text-foreground">
         <DialogHeader>
-          <DialogTitle>Add Income</DialogTitle>
+          <DialogTitle>Add New Income</DialogTitle>
         </DialogHeader>
 
         <form action={handleSubmit} className="space-y-4">
-          <div>
+          <div className="space-y-2">
             <Label>Amount</Label>
-            <Input name="amount" type="number" required />
+            <Input name="amount" type="number" placeholder="0.00" required />
           </div>
 
-          <div>
+          <div className="space-y-2">
             <Label>Source</Label>
             <Select onValueChange={setSource} required>
               <SelectTrigger>
@@ -75,7 +75,7 @@ export function AddIncomeDialog({ onSuccess }: { onSuccess: () => void }) {
             </Select>
           </div>
 
-          <div>
+          <div className="space-y-2">
             <Label>Date</Label>
             <Input name="date" type="date" required />
           </div>

@@ -55,7 +55,7 @@ export function EditIncomeDialog({ income, open, onClose, onUpdated }: Props) {
         </DialogHeader>
 
         <div className="space-y-4">
-          <div>
+          <div className="space-y-2">
             <Label>Amount</Label>
             <Input
               type="number"
@@ -64,7 +64,7 @@ export function EditIncomeDialog({ income, open, onClose, onUpdated }: Props) {
             />
           </div>
 
-          <div>
+          <div className="space-y-2">
             <Label>Source</Label>
             <Select
               value={form.source}
@@ -81,7 +81,7 @@ export function EditIncomeDialog({ income, open, onClose, onUpdated }: Props) {
             </Select>
           </div>
 
-          <div>
+          <div className="space-y-2">
             <Label>Date</Label>
             <Input
               type="date"

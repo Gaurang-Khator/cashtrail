@@ -8,7 +8,6 @@ import {
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Textarea } from "./ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { useUser } from "@clerk/nextjs";
 import { Plus } from "lucide-react";
@@ -17,26 +16,54 @@ const SOURCES = ["Salary", "Freelance", "Dividend", "Profit", "Other"];
 
 export function AddIncomeDialog({ onSuccess }: { onSuccess: () => void }) {
   const { user } = useUser();
-  const [loading, setLoading] = useState(false);
+
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const [source, setSource] = useState("");
+  const [amount, setAmount] = useState<string>("");
+  const [amountError, setAmountError] = useState<string>("");
+
+  function validateAmount(value: string) {
+    if (!value) {
+      setAmountError("Income amount is required");
+      return false;
+    }
+
+    if (Number(value) <= 0) {
+      setAmountError("Income amount should be greater than 0");
+      return false;
+    }
+
+    setAmountError("");
+    return true;
+  }
 
   async function handleSubmit(formData: FormData) {
     if (!user) return;
+
+    if (!validateAmount(amount)) {
+      return;
+    }
+
     setLoading(true);
 
     try {
       await addIncome({
         userId: user.id,
-        amount: Number(formData.get("amount")),
+        amount: Number(amount),
         source,
-        date: String(formData.get("date"))
+        date: String(formData.get("date")),
       });
 
+      // reset state
       setOpen(false);
+      setAmount("");
+      setSource("");
+      setAmountError("");
       onSuccess();
     } catch {
-      alert("Failed to add income");
+      setAmountError("Failed to add income. Try again.");
     } finally {
       setLoading(false);
     }
@@ -56,11 +83,28 @@ export function AddIncomeDialog({ onSuccess }: { onSuccess: () => void }) {
         </DialogHeader>
 
         <form action={handleSubmit} className="space-y-4">
+          {/* Amount */}
           <div className="space-y-2">
             <Label>Amount</Label>
-            <Input name="amount" type="number" placeholder="0.00" required />
+            <Input
+              type="number"
+              placeholder="0.00"
+              value={amount}
+              onChange={(e) => {
+                setAmount(e.target.value);
+                validateAmount(e.target.value); 
+              }}
+              className={amountError ? "border-red-500 focus-visible:ring-red-500" : ""}
+              required
+            />
+            {amountError && (
+              <p className="text-xs text-red-500 mt-1">
+                {amountError}
+              </p>
+            )}
           </div>
 
+          {/* Source */}
           <div className="space-y-2">
             <Label>Source</Label>
             <Select onValueChange={setSource} required>
@@ -75,12 +119,17 @@ export function AddIncomeDialog({ onSuccess }: { onSuccess: () => void }) {
             </Select>
           </div>
 
+          {/* Date */}
           <div className="space-y-2">
             <Label>Date</Label>
             <Input name="date" type="date" required />
           </div>
 
-          <Button type="submit" disabled={loading || !source} className="w-full">
+          <Button
+            type="submit"
+            disabled={loading}
+            className="w-full"
+          >
             {loading ? "Adding..." : "Confirm Income"}
           </Button>
         </form>

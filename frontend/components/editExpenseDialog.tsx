@@ -9,7 +9,16 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const CATEGORIES = ["Shopping", "Food", "Rent", "Utilities", "Entertainment", "Transport", "Fixed", "Other"];
+const CATEGORIES = [
+  "Shopping",
+  "Food",
+  "Rent",
+  "Utilities",
+  "Entertainment",
+  "Transport",
+  "Fixed",
+  "Other",
+];
 
 interface Props {
   expense: Expense;
@@ -24,15 +33,29 @@ export function EditExpenseDialog({
   onClose,
   onUpdated,
 }: Props) {
-  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState<Expense>(expense);
+  const [loading, setLoading] = useState(false);
+  const [amountError, setAmountError] = useState<string>("");
 
-  // Sync form state if the expense prop changes
+  // Sync form state when dialog opens / expense changes
   useEffect(() => {
     setForm(expense);
+    setAmountError("");
   }, [expense]);
 
+  function validateAmount(value: number) {
+    if (value <= 0) {
+      setAmountError("Expense amount should be greater than 0");
+      return false;
+    }
+    setAmountError("");
+    return true;
+  }
+
   async function handleSave() {
+
+    if (!validateAmount(form.amount)) return;
+
     setLoading(true);
     try {
       const res = await updateExpense(expense.expenseId, {
@@ -45,8 +68,8 @@ export function EditExpenseDialog({
 
       onUpdated(res.expense);
       onClose();
-    } catch (error) {
-      alert("Failed to update expense");
+    } catch {
+      setAmountError("Failed to update expense");
     } finally {
       setLoading(false);
     }
@@ -60,37 +83,46 @@ export function EditExpenseDialog({
         </DialogHeader>
 
         <div className="space-y-4 py-2">
-          {/* Amount Field */}
+          {/* Amount */}
           <div className="space-y-2">
             <Label htmlFor="edit-amount">Amount (₹)</Label>
             <Input
               id="edit-amount"
               type="number"
               value={form.amount}
-              className="bg-background"
-              onChange={e => setForm({ ...form, amount: Number(e.target.value) })}
+              className={amountError ? "border-red-500 focus-visible:ring-red-500" : ""}
+              onChange={e => {
+                const val = Number(e.target.value);
+                setForm({ ...form, amount: val });
+                validateAmount(val);
+              }}
             />
+            {amountError && (
+              <p className="text-xs text-red-500">{amountError}</p>
+            )}
           </div>
 
-          {/* Category Field (Dropdown) */}
+          {/* Category */}
           <div className="space-y-2">
             <Label>Category</Label>
-            <Select 
-              value={form.category} 
-              onValueChange={(val) => setForm({ ...form, category: val })}
+            <Select
+              value={form.category}
+              onValueChange={val => setForm({ ...form, category: val })}
             >
               <SelectTrigger className="bg-background">
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent>
-                {CATEGORIES.map((cat) => (
-                  <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                {CATEGORIES.map(cat => (
+                  <SelectItem key={cat} value={cat}>
+                    {cat}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
-          {/* Date Field */}
+          {/* Date */}
           <div className="space-y-2">
             <Label htmlFor="edit-date">Date</Label>
             <Input
@@ -102,7 +134,7 @@ export function EditExpenseDialog({
             />
           </div>
 
-          {/* Note Field */}
+          {/* Note */}
           <div className="space-y-2">
             <Label htmlFor="edit-note">Note</Label>
             <Textarea

@@ -8,7 +8,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const SOURCES = ["Salary", "Freelance", "Dividend", "Profit", "Other"];
@@ -23,25 +22,39 @@ interface Props {
 export function EditIncomeDialog({ income, open, onClose, onUpdated }: Props) {
   const [form, setForm] = useState(income);
   const [loading, setLoading] = useState(false);
+  const [amountError, setAmountError] = useState<string>("");
 
   useEffect(() => {
     setForm(income);
+    setAmountError(""); 
   }, [income]);
 
+  function validateAmount(value: number) {
+    if (value <= 0) {
+      setAmountError("Income amount should be greater than 0");
+      return false;
+    }
+    setAmountError("");
+    return true;
+  }
+
   async function handleSave() {
+    // 🛑 FINAL CHECK BEFORE API CALL
+    if (!validateAmount(form.amount)) return;
+
     setLoading(true);
     try {
       await updateIncome(income.incomeId, {
         userId: income.userId,
         amount: form.amount,
         source: form.source,
-        date: form.date
+        date: form.date,
       });
 
       onUpdated();
       onClose();
     } catch {
-      alert("Failed to update income");
+      setAmountError("Failed to update income");
     } finally {
       setLoading(false);
     }
@@ -55,15 +68,25 @@ export function EditIncomeDialog({ income, open, onClose, onUpdated }: Props) {
         </DialogHeader>
 
         <div className="space-y-4">
+          {/* Amount */}
           <div className="space-y-2">
             <Label>Amount</Label>
             <Input
               type="number"
               value={form.amount}
-              onChange={e => setForm({ ...form, amount: Number(e.target.value) })}
+              onChange={e => {
+                const val = Number(e.target.value);
+                setForm({ ...form, amount: val });
+                validateAmount(val); 
+              }}
+              className={amountError ? "border-red-500 focus-visible:ring-red-500" : ""}
             />
+            {amountError && (
+              <p className="text-xs text-red-500">{amountError}</p>
+            )}
           </div>
 
+          {/* Source */}
           <div className="space-y-2">
             <Label>Source</Label>
             <Select
@@ -81,6 +104,7 @@ export function EditIncomeDialog({ income, open, onClose, onUpdated }: Props) {
             </Select>
           </div>
 
+          {/* Date */}
           <div className="space-y-2">
             <Label>Date</Label>
             <Input
@@ -94,8 +118,12 @@ export function EditIncomeDialog({ income, open, onClose, onUpdated }: Props) {
             <Button variant="outline" onClick={onClose} className="flex-1">
               Cancel
             </Button>
-            <Button onClick={handleSave} disabled={loading} className="flex-1">
-              {loading ? "Saving..." : "Save"}
+            <Button
+              onClick={handleSave}
+              disabled={loading}
+              className="flex-1"
+            >
+              {loading ? "Saving..." : "Save Changes"}
             </Button>
           </div>
         </div>

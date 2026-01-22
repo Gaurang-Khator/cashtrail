@@ -15,28 +15,28 @@ exports.updateIncome = async(event) => {
             }
         }
 
-        const updates = [];
+        const updateExpressions = [];
         const values = {};
         const names = {};
 
         if(amount !== undefined) {
-            updates.push("#amount = :amount");
+            updateExpressions.push("#amount = :amount");
             values[":amount"] = amount;
             names["#amount"] = "amount";
         }
 
         if(source) {
-            updates.push("#source = :source");
+            updateExpressions.push("#source = :source");
             values[":source"] = source;
             names["#source"] = "source";
         }
         if(date) {
-            updates.push("#date = :date");
+            updateExpressions.push("#date = :date");
             values[":date"] = date;
             names["#date"] = "date";
         }
 
-        if(updates.length === 0) {
+        if(updateExpressions.length === 0) {
             return {
                 statusCode: 400,
                 body: JSON.stringify({message: "No fields provided to update!"})
@@ -49,9 +49,9 @@ exports.updateIncome = async(event) => {
                 userId,
                 incomeId
             },
-            UpdateExpression: `SET ${updates.join(", ")}`,
-            names: names,
-            values: values,
+            UpdateExpression: `SET ${updateExpressions.join(", ")}`,
+            ExpressionAttributeNames: names,
+            ExpressionAttributeValues: values,
             ReturnValues: "ALL_NEW"
         }).promise();
 

@@ -72,7 +72,7 @@ export default function IncomePage() {
             icon={<Receipt className="h-4 w-4" />}
           />
           <KPICard
-            title="Transactions"
+            title="No. of Incomes"
             value={filteredIncome.length.toString()}
             icon={<CreditCard className="h-4 w-4" />}
           />
@@ -119,7 +119,7 @@ export default function IncomePage() {
           <CardContent>
             {loading ? (
               <div className="py-20 text-center animate-pulse">
-                Loading Income...
+                Syncing Records...
               </div>
             ) : (
               <IncomeTable

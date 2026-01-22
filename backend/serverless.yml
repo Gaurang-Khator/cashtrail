@@ -65,20 +65,33 @@ functions:
           path: /expenses/{expenseId}
           method: put
 
-  setMonthlyIncome:
-    handler: handlers/setMonthlyIncome.setMonthlyIncome
-    events:
+  createIncome:
+    handler: handlers/createIncome.createIncome
+    events: 
       - httpApi:
           path: /income 
-          method: post 
+          method: post
 
-  getMonthlyIncome:
-    handler: handlers/getMonthlyIncome.getMonthlyIncome 
-    events:
+  getIncome:
+    handler: handlers/getIncome.getIncome
+    events: 
       - httpApi:
           path: /income 
           method: get 
 
+  deleteIncome:
+    handler: handlers/deleteIncome.deleteIncome
+    events: 
+      - httpApi: 
+          path: /income/{incomeId}
+          method: delete 
+
+  updateIncome:
+    handler: handlers/updateIncome.updateIncome
+    events:
+      - httpApi:
+          path: /income/{incomeId}
+          method: put
 
 resources:
   Resources:
@@ -101,15 +114,15 @@ resources:
     MonthlyIncomeTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: MonthlyIncome 
+        TableName: Income 
         BillingMode: PAY_PER_REQUEST
         AttributeDefinitions:
           - AttributeName: userId
             AttributeType: S
-          - AttributeName: month 
+          - AttributeName: incomeId 
             AttributeType: S 
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
-          - AttributeName: month
+          - AttributeName: incomeId
             KeyType: RANGE

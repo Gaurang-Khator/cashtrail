@@ -12,9 +12,9 @@ export interface Expense {
 export interface Income {
     userId: string,
     incomeId: string,
-    income: number,
+    amount: number,
     source: string,
-    month: string,
+    date: string,
     createdAt: string
 }
 
@@ -91,51 +91,72 @@ export async function updateExpense(expenseId: string, payload:{
     return res.json();
 }
 
+export async function getIncome(userId: string): Promise<Income[]> {
+    const res = await fetch(`${API_BASE_URL}/income?userId=${userId}`,
+        { cache: "no-store"}
+    )
 
+    if(!res.ok) {
+        throw new Error("Failed to fetch income");
+    }
 
-export async function getMonthlyIncome(userId: string, month: string): Promise<Income[]> {
-    const res = await fetch(`${API_BASE_URL}/income?userId=${userId}&month=${month}`,
-        { cache: "no-store" }
-    );
-    if(!res.ok) throw new Error("Failed to fetch monthly income");
     const data = await res.json();
-    return data.income;
+    return data;
 }
 
-export async function setMonthlyIncome(data: {
-    userId: string, 
-    month: string, 
+export async function addIncome(income: {
+    userId: string,
+    amount: number,
     source: string,
-    income: number,
+    date: string,
 }) {
     const res = await fetch(`${API_BASE_URL}/income`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(income),
     });
-    if(!res.ok) throw new Error("Failed to set monthly income");
+
+    if (!res.ok) {
+        throw new Error("Failed to add income");
+    }
+
     return res.json();
 }
 
-export async function updateIncome(incomeId: string, payload: {
+export async function deleteIncome(userId: string, incomeId: string) {
+    const res = await fetch(
+        `${API_BASE_URL}/income/${incomeId}?userId=${userId}`,
+        {
+            method: "DELETE",
+        }
+    );
+
+    if (!res.ok) {
+        throw new Error("Failed to delete income");
+    }
+
+    return res.json();
+}
+
+export async function updateIncome( incomeId: string, payload: {
     userId: string,
-    month?: string,
+    amount?: number,
     source?: string,
-    income?: number,
+    date?: string,
 }) {
     const res = await fetch(`${API_BASE_URL}/income/${incomeId}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+            "Content-Type": "application/json",
+        },
         body: JSON.stringify(payload),
     });
-    if(!res.ok) throw new Error("Failed to update income");
-    return res.json();
-}
 
-export async function deleteIncome(userId: string, incomeId: string){
-    const res = await fetch(`${API_BASE_URL}/income/${incomeId}?userId=${userId}`, {
-        method: 'DELETE'
-    });
-    if(!res.ok) throw new Error("Failed to delete income!");
+    if (!res.ok) {
+        throw new Error("Failed to update income");
+    }
+
     return res.json();
 }

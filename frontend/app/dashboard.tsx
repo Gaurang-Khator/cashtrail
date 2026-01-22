@@ -1,41 +1,41 @@
 'use client';
 
 import { useState, useEffect, useMemo } from "react";
-import { getExpenses, getMonthlyIncome, Expense } from "@/lib/api";
+import { getExpenses, getIncome, Expense, Income } from "@/lib/api"; // ✅ import Income
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useUser } from "@clerk/nextjs";
 import { TrendingUp, Wallet, PiggyBank, PieChart as PieChartIcon } from "lucide-react";
 import { KPICard } from "@/components/kpicard";
 import { NavBar } from "@/components/NavBar_dashboard";
-import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
-  PieChart, Pie, Cell as PieCell, Legend 
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell as PieCell, Legend
 } from "recharts";
 
 export function Dashboard() {
   const { user, isLoaded } = useUser();
+
   const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [income, setIncome] = useState<number>(0);
+  const [income, setIncome] = useState<Income[]>([]); // ✅ FIX
   const [loading, setLoading] = useState(true);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12 && hour > 4) return "Good Morning";
-    if (hour < 18 && hour >= 12) return "Good Afternoon";
+    if (hour < 18) return "Good Afternoon";
     return "Good Evening";
   };
 
   async function loadDashboardData() {
     if (!user?.id) return;
     try {
-      const now = new Date();
-      const monthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
       const [expensesData, incomeData] = await Promise.all([
         getExpenses(user.id),
-        getMonthlyIncome(user.id, monthStr)
+        getIncome(user.id) // ✅ returns Income[]
       ]);
+
       setExpenses(expensesData);
-      setIncome(incomeData.income || 0);
+      setIncome(incomeData);
     } catch (error) {
       console.error("Failed to load dashboard data", error);
     } finally {
@@ -47,6 +47,7 @@ export function Dashboard() {
     if (isLoaded) loadDashboardData();
   }, [isLoaded, user?.id]);
 
+  // ✅ CORRECT MONTHLY CALCULATIONS
   const stats = useMemo(() => {
     const now = new Date();
     const currentMonth = now.getMonth();
@@ -59,11 +60,18 @@ export function Dashboard() {
       })
       .reduce((sum, e) => sum + e.amount, 0);
 
-    const totalSavings = income - monthlyExpenses;
+    const monthlyIncome = income
+      .filter(i => {
+        const d = new Date(i.date);
+        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+      })
+      .reduce((sum, i) => sum + i.amount, 0);
+
+    const totalSavings = monthlyIncome - monthlyExpenses;
 
     return {
-      monthlyIncome: income,
-      monthlyExpenses: monthlyExpenses,
+      monthlyIncome,
+      monthlyExpenses,
       totalSavings: totalSavings > 0 ? totalSavings : 0
     };
   }, [expenses, income]);
@@ -73,64 +81,51 @@ export function Dashboard() {
     { name: 'Savings', value: stats.totalSavings, color: '#22c55e' },
   ], [stats]);
 
+  const BarTooltip = ({ active, payload, label }: any) => { 
+    if (active && payload && payload.length) { 
+      return ( 
+        <div className="p-3 border border-green-900/30 bg-zinc-950 rounded-lg shadow-xl backdrop-blur-md"> 
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">{label}</p> 
+          <p className="text-sm font-bold text-green-400"> ₹{payload[0].value.toLocaleString('en-IN')} </p> 
+        </div> 
+      ); 
+    } 
+    return null; 
+};
 
-  const BarTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="p-3 border border-green-900/30 bg-zinc-950 rounded-lg shadow-xl backdrop-blur-md">
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">{label}</p>
-          <p className="text-sm font-bold text-green-400">
-            ₹{payload[0].value.toLocaleString('en-IN')}
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
-
-  const PieTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      return (
-        <div className="p-3 border border-green-900/30 bg-zinc-950 rounded-lg shadow-xl backdrop-blur-md">
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">{data.name}</p>
-          <p className="text-sm font-bold" style={{ color: data.color }}>
-            ₹{data.value.toLocaleString('en-IN')}
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
+const PieTooltip = ({ active, payload }: any) => { 
+  if (active && payload && payload.length) { 
+    const data = payload[0].payload; 
+    return ( 
+      <div className="p-3 border border-green-900/30 bg-zinc-950 rounded-lg shadow-xl backdrop-blur-md"> 
+        <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">{data.name}</p> 
+        <p className="text-sm font-bold" style={{ color: data.color }}> ₹{data.value.toLocaleString('en-IN')} </p> 
+      </div> 
+    );
+  } 
+  return null; 
+};
 
   const last7DaysData = useMemo(() => {
-    const days = [];
     const now = new Date();
+    const map: Record<string, number> = {};
+
     for (let i = 6; i >= 0; i--) {
-      const date = new Date(now);
-      date.setDate(date.getDate() - i);
-      days.push(date);
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const key = d.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+      map[key] = 0;
     }
 
-    const dataMap: Record<string, number> = {};
-    days.forEach(d => {
-      const dateStr = d.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
-      dataMap[dateStr] = 0;
-    });
-
-    expenses.forEach(expense => {
-      const expenseDate = new Date(expense.date);
-      const diffTime = Math.abs(now.getTime() - expenseDate.getTime());
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      if (diffDays <= 7) {
-        const dateStr = expenseDate.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
-        if (dataMap[dateStr] !== undefined) {
-          dataMap[dateStr] += expense.amount;
-        }
+    expenses.forEach(e => {
+      const d = new Date(e.date);
+      const key = d.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+      if (map[key] !== undefined) {
+        map[key] += e.amount;
       }
     });
 
-    return Object.entries(dataMap).map(([date, amount]) => ({ date, amount }));
+    return Object.entries(map).map(([date, amount]) => ({ date, amount }));
   }, [expenses]);
 
   if (!isLoaded || loading) {
@@ -145,38 +140,34 @@ export function Dashboard() {
   return (
     <main className="max-w-7xl mx-auto p-4 md:p-6 lg:p-10 space-y-6 md:space-y-10">
       <NavBar />
-      
-      <header className="space-y-2 flex flex-col md:flex-row md:items-center justify-between mt-16 md:mt-0">
+
+      <header className="space-y-2 flex flex-col md:flex-row md:items-center justify-between">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white">
+          <h1 className="text-2xl md:text-3xl font-bold">
             {getGreeting()}, <span className="text-green-400">{user?.firstName || "User"}</span>!
           </h1>
-          <p className="text-sm text-muted-foreground">Your financial summary for this month.</p>
+          <p className="text-sm text-muted-foreground">
+            Your financial summary for this month.
+          </p>
         </div>
-        <button
-          onClick={() => window.location.href = '/expenses'}
-          className="w-full md:w-auto text-sm bg-green-500/10 text-green-400 border border-green-500/20 px-4 py-2 rounded-lg hover:bg-green-500/20 active:bg-green-500/20 transition-all font-medium"
-        >
-          Add a new Expense
-        </button>
       </header>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-        <KPICard 
-          title="Monthly Income" 
-          value={`₹${stats.monthlyIncome.toLocaleString('en-IN')}`} 
-          icon={<Wallet className="w-4 h-4" />} 
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <KPICard
+          title="Monthly Income"
+          value={`₹${stats.monthlyIncome.toLocaleString('en-IN')}`}
+          icon={<Wallet className="w-4 h-4" />}
         />
-        <KPICard 
+        <KPICard
           title="Total Expenses"
-          value={`₹${stats.monthlyExpenses.toLocaleString('en-IN')}`} 
-          icon={<TrendingUp className="w-4 h-4 text-red-400" />} 
+          value={`₹${stats.monthlyExpenses.toLocaleString('en-IN')}`}
+          icon={<TrendingUp className="w-4 h-4 text-red-400" />}
         />
-        <KPICard 
-          title="Total Savings" 
-          value={`₹${stats.totalSavings.toLocaleString('en-IN')}`} 
-          icon={<PiggyBank className="w-4 h-4 text-green-400" />} 
+        <KPICard
+          title="Total Savings"
+          value={`₹${stats.totalSavings.toLocaleString('en-IN')}`}
+          icon={<PiggyBank className="w-4 h-4 text-green-400" />}
         />
       </div>
 

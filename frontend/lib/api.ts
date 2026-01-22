@@ -101,7 +101,7 @@ export async function getIncome(userId: string): Promise<Income[]> {
     }
 
     const data = await res.json();
-    return data;
+    return data.income;
 }
 
 export async function addIncome(income: {

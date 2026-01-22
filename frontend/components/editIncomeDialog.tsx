@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { updateIncome, Income } from "@/lib/api";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,19 +17,13 @@ interface Props {
   income: Income;
   open: boolean;
   onClose: () => void;
-  onUpdated: (updated: Income) => void;
+  onUpdated: () => void;
 }
 
-export function EditIncomeDialog({
-  income,
-  open,
-  onClose,
-  onUpdated,
-}: Props) {
+export function EditIncomeDialog({ income, open, onClose, onUpdated }: Props) {
+  const [form, setForm] = useState(income);
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState<Income>(income);
 
-  // Sync form state if the income prop changes
   useEffect(() => {
     setForm(income);
   }, [income]);
@@ -35,16 +31,16 @@ export function EditIncomeDialog({
   async function handleSave() {
     setLoading(true);
     try {
-      const res = await updateIncome(income.incomeId, {
+      await updateIncome(income.incomeId, {
         userId: income.userId,
-        income: form.income,
+        amount: form.amount,
         source: form.source,
-        month: form.month,
+        date: form.date
       });
 
-      onUpdated(res.income);
+      onUpdated();
       onClose();
-    } catch (error) {
+    } catch {
       alert("Failed to update income");
     } finally {
       setLoading(false);
@@ -53,63 +49,55 @@ export function EditIncomeDialog({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px] bg-card border-border text-foreground">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Income</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-2">
-          {/* Amount Field */}
-          <div className="space-y-2">
-            <Label htmlFor="edit-amount">Amount (₹)</Label>
+        <div className="space-y-4">
+          <div>
+            <Label>Amount</Label>
             <Input
-              id="edit-amount"
               type="number"
-              value={form.income}
-              className="bg-background"
-              onChange={e => setForm({ ...form, income: Number(e.target.value) })}
+              value={form.amount}
+              onChange={e => setForm({ ...form, amount: Number(e.target.value) })}
             />
           </div>
 
-          {/* Source Field (Dropdown) */}
-          <div className="space-y-2">
+          <div>
             <Label>Source</Label>
-            <Select 
-              value={form.source} 
-              onValueChange={(val) => setForm({ ...form, source: val })}
+            <Select
+              value={form.source}
+              onValueChange={v => setForm({ ...form, source: v })}
             >
-              <SelectTrigger className="bg-background">
-                <SelectValue placeholder="Select category" />
+              <SelectTrigger>
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {SOURCES.map((s) => (
+                {SOURCES.map(s => (
                   <SelectItem key={s} value={s}>{s}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
-          {/* Month Field */}
-          <div className="space-y-2">
-            <Label htmlFor="edit-date">Month</Label>
+          <div>
+            <Label>Date</Label>
             <Input
-              id="edit-month"
-              type="month"
-              value={form.month}
-              className="bg-background"
-              onChange={e => setForm({ ...form, month: e.target.value })}
+              type="date"
+              value={form.date}
+              onChange={e => setForm({ ...form, date: e.target.value })}
             />
           </div>
 
-        </div>
-
-        <div className="flex gap-3 mt-4">
-          <Button variant="outline" onClick={onClose} className="flex-1">
-            Cancel
-          </Button>
-          <Button onClick={handleSave} disabled={loading} className="flex-1">
-            {loading ? "Saving..." : "Save Changes"}
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={onClose} className="flex-1">
+              Cancel
+            </Button>
+            <Button onClick={handleSave} disabled={loading} className="flex-1">
+              {loading ? "Saving..." : "Save"}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

@@ -1,15 +1,14 @@
 'use client';
 
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Income } from "@/lib/api";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow
+} from "./ui/table";
 import { Button } from "./ui/button";
 import { MoreHorizontal, Edit2, Trash2, ChevronDown } from "lucide-react";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
 interface Props {
@@ -19,60 +18,59 @@ interface Props {
 }
 
 export function IncomeTable({ income, onDelete, onEdit }: Props) {
-  const [sourceFilter, setSourceFilter] = useState<string>("");
+  const [sourceFilter, setSourceFilter] = useState("");
 
   const sources = useMemo(() => {
-    const cats = new Set(income.map(e => e.source));
-    return Array.from(cats).sort();
+    return Array.from(new Set(income.map(i => i.source))).sort();
   }, [income]);
 
-  const filteredIncome = useMemo(() => {
+  const filtered = useMemo(() => {
     if (!sourceFilter) return income;
-    return income.filter(e => e.source === sourceFilter);
+    return income.filter(i => i.source === sourceFilter);
   }, [income, sourceFilter]);
+
   return (
     <div className="rounded-md border border-border">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Month</TableHead>
+            <TableHead>Date</TableHead>
             <TableHead>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-8 p-0 hover:bg-transparent">
-                    <span className="flex items-center gap-1">
-                      Source <ChevronDown className="h-4 w-4" />
-                    </span>
+                  <Button variant="ghost" className="h-8 p-0">
+                    Source <ChevronDown className="h-4 w-4 ml-1" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
+                <DropdownMenuContent>
                   <DropdownMenuItem onClick={() => setSourceFilter("")}>
-                    <span className={sourceFilter === "" ? "font-semibold" : ""}>All Sources</span>
+                    All Sources
                   </DropdownMenuItem>
                   {sources.map(s => (
                     <DropdownMenuItem key={s} onClick={() => setSourceFilter(s)}>
-                      <span className={sourceFilter === s ? "font-semibold" : ""}>{s}</span>
+                      {s}
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
             </TableHead>
-            <TableHead className="text-right">Income</TableHead>
+            <TableHead className="text-right">Amount</TableHead>
             <TableHead className="text-right w-[100px]">Actions</TableHead>
           </TableRow>
         </TableHeader>
 
         <TableBody>
-          {filteredIncome.map((income) => (
-            <TableRow key={income.incomeId}>
-              <TableCell>{income.month}</TableCell>
+          {filtered.map(i => (
+            <TableRow key={i.incomeId}>
+              <TableCell>{i.date}</TableCell>
               <TableCell>
                 <span className="bg-primary/10 text-primary px-2 py-1 rounded text-xs">
-                    {income.source}
+                  {i.source}
                 </span>
               </TableCell>
-              <TableCell className="text-right font-bold">₹{income.income}</TableCell>
-
+              <TableCell className="text-right font-bold">
+                ₹{i.amount}
+              </TableCell>
               <TableCell className="text-right">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -81,12 +79,12 @@ export function IncomeTable({ income, onDelete, onEdit }: Props) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => onEdit(income)}>
+                    <DropdownMenuItem onClick={() => onEdit(i)}>
                       <Edit2 className="mr-2 h-4 w-4" /> Edit
                     </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={() => onDelete(income.incomeId)}
+                    <DropdownMenuItem
                       className="text-destructive"
+                      onClick={() => onDelete(i.incomeId)}
                     >
                       <Trash2 className="mr-2 h-4 w-4" /> Delete
                     </DropdownMenuItem>
